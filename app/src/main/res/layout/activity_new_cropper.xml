@@ -3,7 +3,17 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/ondraglayout"
     android:padding="10sp">
+
+    <Button
+        android:id="@+id/add_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/color_button"
+        android:text="Add Text"
+        android:textSize="16sp"/>
+
 
     <Button
         android:id="@+id/clear_button"

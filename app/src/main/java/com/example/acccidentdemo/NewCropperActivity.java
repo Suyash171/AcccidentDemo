@@ -2,6 +2,7 @@ package com.example.acccidentdemo;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ClipData;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -14,8 +15,10 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static com.example.acccidentdemo.MainActivity.getImage;
 
@@ -58,7 +62,12 @@ public class NewCropperActivity extends AppCompatActivity implements View.OnClic
     private ImagePickerDialog imagePickerDialog;
     private static final int STORAGE_ACCESS_PERMISSION_REQUEST = 1234;
 
+    RelativeLayout dropLayout;
+    RelativeLayout.LayoutParams params;
+    Button addText;
 
+    private HashMap<Integer,String> editTextSelected = new HashMap<>();
+    private int mEditTextCounter = 0;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +84,14 @@ public class NewCropperActivity extends AppCompatActivity implements View.OnClic
         mThicknessText = (TextView) findViewById(R.id.thickness_value);
         mThicknessBar = (SeekBar) findViewById(R.id.thickness_bar);
         mThicknessBar.setMax(50);
+
+        //mDrawingView = new Drawing(this);
+
+        dropLayout = (RelativeLayout) findViewById(R.id.ondraglayout);
+        dropLayout.setOnDragListener(new MyDragListener());
+        addText = (Button) findViewById(R.id.add_edit_text);
+        addText.setOnClickListener(new MyButtonClickListener());
+
 
         Bitmap myLogo = BitmapFactory.decodeResource(getResources(), R.drawable.ic_human_body);
         Bitmap workingBitmap = Bitmap.createBitmap(myLogo);
@@ -147,6 +164,37 @@ public class NewCropperActivity extends AppCompatActivity implements View.OnClic
 
     }
 
+    public class MyButtonClickListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            ViewGroup relativeParent = (ViewGroup) v.getParent();
+            CustomEdittext edttxt = new CustomEdittext(v.getContext());
+            relativeParent.addView(edttxt);
+            edttxt.setOnLongClickListener(new MyLongClickListner());
+            if (edttxt.getText() != null){
+                editTextSelected.put(edttxt.getId(),edttxt.getText().toString());
+            }
+        }
+    }
+
+    public class MyLongClickListner implements View.OnLongClickListener {
+
+        @Override
+        public boolean onLongClick(View v) {
+
+            ClipData dragdata = ClipData.newPlainText("", "");
+
+            View.DragShadowBuilder shdwbldr = new View.DragShadowBuilder(v);
+
+            v.startDrag(dragdata, shdwbldr, v, 0);
+            v.setVisibility(View.INVISIBLE);
+
+            return true;
+        }
+
+    }
+
     private void updateThickness(int value) {
         mThicknessText.setText("Thickness : " + value);
         mThicknessBar.setProgress(value);
@@ -170,7 +218,7 @@ public class NewCropperActivity extends AppCompatActivity implements View.OnClic
             mSubmitButton.setVisibility(View.GONE);
             // mDrawingImageView.setVisibility(View.VISIBLE);
             mDrawingView.setImageBitmap(mDrawingView.getDrawing());
-           // setSavePicture(mDrawingView.getDrawing());
+            // setSavePicture(mDrawingView.getDrawing());
             mThicknessText.setVisibility(View.GONE);
             mThicknessBar.setVisibility(View.GONE);
             mColorButton.setVisibility(View.GONE);

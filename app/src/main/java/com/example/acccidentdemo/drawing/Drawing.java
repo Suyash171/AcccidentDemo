@@ -9,9 +9,12 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
 
@@ -33,9 +36,13 @@ public class Drawing extends ImageView {
     private float mTolerance = kTouchTolerance;
     private float mThickness = kLineThickness;
     private int mColor = kColor;
+    private EditText editText;
+    private Context mContext;
+    private String key ="";
 
     public Drawing(Context context) {
         super(context);
+        //mContext = context;
         initView();
     }
 
@@ -62,8 +69,6 @@ public class Drawing extends ImageView {
 
         a.recycle();
     }
-
-
 
     public int getDrawingColor() {
         return mColor;
@@ -124,6 +129,11 @@ public class Drawing extends ImageView {
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mPaint.setStrokeWidth(mThickness);
+
+       /* editText = new EditText(mContext);
+        editText.setHint("Please enter text here..");
+        editText.setWidth(180);
+        editText.setBackgroundColor(Color.RED);*/
     }
 
     private void startTouch(float x, float y) {
@@ -148,6 +158,8 @@ public class Drawing extends ImageView {
         if (!mPath.isEmpty()) {
             mPath.lineTo(mX, mY);
             mCanvas.drawPath(mPath, mPaint);
+            mPaint.setColor(Color.BLACK);
+            mPaint.setTextSize(40);
         } else {
             mCanvas.drawPoint(mX, mY, mPaint);
         }
@@ -168,9 +180,45 @@ public class Drawing extends ImageView {
         super.onDraw(canvas);
 
         canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
+       // editText.setDrawingCacheEnabled(true);
+       // mBitmap = editText.getDrawingCache();
+        //canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
         canvas.drawPath(mPath, mPaint);
+
+       /* LinearLayout layout = new LinearLayout(this.getContext());
+
+        EditText textView = new EditText(this.getContext());
+        textView.setVisibility(View.VISIBLE);
+        textView.setText(key);
+        textView.setX(mX);//get x from onTouch method
+        textView.setY(mY); // get y from onTouch method
+
+        layout.addView(textView);
+
+        layout.measure(canvas.getWidth(), canvas.getHeight());
+        layout.layout(50,50, canvas.getWidth(), canvas.getHeight());
+        layout.draw(canvas);*/
     }
 
+/*
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        int keyaction = event.getAction();
+
+        if(keyaction == event.ACTION_DOWN)
+        {
+            int keyunicode = event.getUnicodeChar(event.getMetaState() );
+            char character = (char) keyunicode;
+            key += character;
+            System.out.println("DEBUG MESSAGE KEY=" + character);
+        }
+        // you might add if (delete)
+        // https://stackoverflow.com/questions/7438612/how-to-remove-the-last-character-from-a-string
+        // method to delete last character
+        invalidate();
+        return super.dispatchKeyEvent(event);
+    }
+*/
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
@@ -196,7 +244,6 @@ public class Drawing extends ImageView {
 
         return true;
     }
-
 
 
 }

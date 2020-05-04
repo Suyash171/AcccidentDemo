@@ -203,7 +203,7 @@ public class AudioRecordingDialog implements IAudioRecorderListener, ICoundDownL
     private void startRecording() {
         resetProgressBar();
         hideFileHandlingButton();
-//            ((ImageView) view).setImageResource(R.drawable.ic_stop_recoding);
+// ((ImageView) view).setImageResource(R.drawable.ic_stop_recoding);
         setCountDownTicker();
         recorder.startRecording(context, AudioRecordingDialog.this);
 
