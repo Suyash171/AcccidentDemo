@@ -118,7 +118,7 @@ public class MediaUtility {
                 InputStream inputStream;
                 OutputStream outputStream;
 
-                //            File destinationFileDir = context.getExternalFilesDir(AppConstant.SECURE_DIR + AppConstant.IMAGE_PATH);
+                //  File destinationFileDir = context.getExternalFilesDir(AppConstant.SECURE_DIR + AppConstant.IMAGE_PATH);
                 File destinationFileDir = new File(sDestinationPath);
                 if (!destinationFileDir.exists()) {
                     destinationFileDir.mkdirs();

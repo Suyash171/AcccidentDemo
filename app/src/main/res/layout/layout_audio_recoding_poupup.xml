@@ -41,19 +41,40 @@
         android:layout_marginTop="10dp"
         android:max="100"
         app:barThickness="30"
+        android:visibility="gone"
         app:horizontalSpace="10"
         app:singleColor="false" />
+
+    <com.example.acccidentdemo.ColorArcProgressBar.ColorArcProgressBar
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@+id/textView_count_down"
+        android:id="@+id/cirularProgress"
+        app:is_need_content="true"
+        app:max_value="100"
+        app:back_width="2dp"
+        app:front_width="10dp"
+        app:total_engle="270"
+        app:is_need_unit="true"
+        app:string_unit="dB"
+        app:is_need_title="false"
+        app:string_title="当前速度"
+        app:is_need_dial="false"
+        app:back_color="@android:color/darker_gray"
+        android:layout_marginBottom="150dp"
+        />
 
 
     <TextView
         android:id="@+id/textView_audio_level_warning"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/progressBar_audio_level"
+        android:layout_below="@+id/cirularProgress"
         android:layout_centerHorizontal="true"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="20dp"
         android:text="0"
         android:textColor="#3A3737"
         android:textSize="16sp"

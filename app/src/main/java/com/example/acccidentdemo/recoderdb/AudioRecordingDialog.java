@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.acccidentdemo.ColorArcProgressBar.ColorArcProgressBar;
 import com.example.acccidentdemo.DialogUtility;
 import com.example.acccidentdemo.R;
 
@@ -26,8 +27,10 @@ public class AudioRecordingDialog implements IAudioRecorderListener, ICoundDownL
     private Context context;
     private Recorder recorder;
     private TextView textViewAudioStatus;
+    // private ProgressView progressBarAmplitude;
     //    private ProgressBar progressBarAmplitude;
-    private LevelProgressBar progressBarAmplitude;
+    //private LevelProgressBar progressBarAmplitude;
+    private ColorArcProgressBar progressBarAmplitude;
     //    private IAttachmentListHandler iAttachmentListHandler;
     // private Button imageViewSave, imageViewDelete;
     private TextView textViewCountDown;
@@ -59,7 +62,9 @@ public class AudioRecordingDialog implements IAudioRecorderListener, ICoundDownL
     }
 
     private void resetProgressBar() {
-        progressBarAmplitude.setProgress(0);
+        //progressBarAmplitude.setProgress(0);
+        progressBarAmplitude.setCurrentValues(0);
+
         // progressBarAmplitude.setProgressDrawable(drawableNormalProgress);
     }
 
@@ -74,8 +79,8 @@ public class AudioRecordingDialog implements IAudioRecorderListener, ICoundDownL
     @Override
     public void setLevelProgress(int progress) {
         Log.d("Log", "prg" + progress);
-        progressBarAmplitude.setProgress(progress);
-
+        // progressBarAmplitude.setProgress(progress);
+        progressBarAmplitude.setCurrentValues(progress);
 
     }
 
@@ -91,12 +96,52 @@ public class AudioRecordingDialog implements IAudioRecorderListener, ICoundDownL
     }
 
     /**
-     *
      * @param dAmplitude
      */
-    private void setProgressSeverityColor(double dAmplitude){
-        switch ((int) dAmplitude){
-            case MediaUtility.WARNING.NORMAL_AUDIO_LEVEL:
+    private void setProgressSeverityColor(double dAmplitude) {
+
+        if ((int) dAmplitude >= MediaUtility.WARNING.NORMAL_AUDIO_LEVEL && (int) dAmplitude <= MediaUtility.WARNING.MID_AUDIO_LEVEL) {
+            //progressBarAmplitude.setnFirstColor(Color.GREEN);
+            //progressBarAmplitude.setnSecondColor(Color.GREEN);
+
+            progressBarAmplitude.setCurrentValues((int) dAmplitude);
+            progressBarAmplitude.setFirstColor(Color.GREEN);
+            progressBarAmplitude.setSecoundColor(Color.GREEN);
+            progressBarAmplitude.setThirdColor(Color.GREEN);
+
+            int[] color = new int[]{Color.GREEN, Color.GREEN, Color.GREEN};
+            progressBarAmplitude.setColorOnProgressStatus(color);
+
+            // progressBarAmplitude.setnSecondColor(Color.GREEN);
+        } else if ((int) dAmplitude >= MediaUtility.WARNING.MID_AUDIO_LEVEL && (int) dAmplitude <= MediaUtility.WARNING.HARMFUL_AUDIO_LEVEL) {
+            progressBarAmplitude.setCurrentValues((int) dAmplitude);
+
+            progressBarAmplitude.setFirstColor(Color.YELLOW);
+            progressBarAmplitude.setSecoundColor(Color.YELLOW);
+            progressBarAmplitude.setThirdColor(Color.RED);
+
+            int[] color = new int[]{Color.YELLOW, Color.YELLOW, Color.RED};
+            progressBarAmplitude.setColorOnProgressStatus(color);
+
+            //progressBarAmplitude.setnFirstColor(Color.YELLOW);
+            //progressBarAmplitude.setnSecondColor(Color.RED);
+        } else if ((int) dAmplitude >= MediaUtility.WARNING.HARMFUL_AUDIO_LEVEL) {
+
+            progressBarAmplitude.setCurrentValues((int) dAmplitude);
+
+            progressBarAmplitude.setFirstColor(Color.RED);
+            progressBarAmplitude.setSecoundColor(Color.RED);
+            progressBarAmplitude.setThirdColor(Color.RED);
+
+            int[] color = new int[]{Color.RED, Color.RED, Color.RED};
+            progressBarAmplitude.setColorOnProgressStatus(color);
+
+            //progressBarAmplitude.setnFirstColor(Color.RED);
+            // progressBarAmplitude.setnSecondColor(Color.RED);
+        }
+
+        /*switch ((int) dAmplitude){
+            case  MediaUtility.WARNING.NORMAL_AUDIO_LEVEL:
                 progressBarAmplitude.setnFirstColor(Color.GREEN);
                 progressBarAmplitude.setnSecondColor(Color.GREEN);
                 break;
@@ -108,8 +153,9 @@ public class AudioRecordingDialog implements IAudioRecorderListener, ICoundDownL
                 progressBarAmplitude.setnFirstColor(Color.RED);
                 progressBarAmplitude.setnSecondColor(Color.RED);
                 break;
-        }
+        }*/
     }
+
     @Override
     public void setWarningMessage(String sWarningMessage) {
         // textViewAudioStatus.setText(sWarningMessage);
@@ -169,7 +215,7 @@ public class AudioRecordingDialog implements IAudioRecorderListener, ICoundDownL
         }
 
         dialog.setCancelable(false);
-        progressBarAmplitude = dialog.findViewById(R.id.progressBar_audio_level);
+        progressBarAmplitude = dialog.findViewById(R.id.cirularProgress);
         textViewAudioStatus = dialog.findViewById(R.id.textView_audio_level_warning);
         //imageViewSave = dialog.findViewById(R.id.button_save);
         //imageViewDelete = dialog.findViewById(R.id.button_delete);
@@ -247,6 +293,7 @@ public class AudioRecordingDialog implements IAudioRecorderListener, ICoundDownL
             public void onTick(long millisUntilFinished) {
                 textViewCountDown.setText(String.format("%d %s", millisUntilFinished / 1000, " sec"));
             }
+
             public void onFinish() {
 
             }
