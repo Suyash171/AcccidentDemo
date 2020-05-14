@@ -80,7 +80,7 @@ public class AudioRecordingDialog implements IAudioRecorderListener, ICoundDownL
     public void setLevelProgress(int progress) {
         Log.d("Log", "prg" + progress);
         // progressBarAmplitude.setProgress(progress);
-        progressBarAmplitude.setCurrentValues(progress);
+       // progressBarAmplitude.setCurrentValues(progress);
 
     }
 
@@ -164,9 +164,9 @@ public class AudioRecordingDialog implements IAudioRecorderListener, ICoundDownL
     @Override
     public void stopMeter() {
         //Naresh
-        if (dialog != null) {
+       /* if (dialog != null) {
             dialog.dismiss();
-        }
+        }*/
     }
 
     //Naresh
@@ -214,7 +214,7 @@ public class AudioRecordingDialog implements IAudioRecorderListener, ICoundDownL
             dialog.show();
         }
 
-        dialog.setCancelable(false);
+        dialog.setCancelable(true);
         progressBarAmplitude = dialog.findViewById(R.id.cirularProgress);
         textViewAudioStatus = dialog.findViewById(R.id.textView_audio_level_warning);
         //imageViewSave = dialog.findViewById(R.id.button_save);

@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class AccidentActivity extends AppCompatActivity  {
 
-    private Button mButtonPicture,mButtonSpeechToText,mSpeechToTextCustom,mButtonMap,mButtonRecord,mVideoPlayerButton,mFindSoundDecible,mCropper,customCropper;
+    private Button mButtonPicture,mButtonSpeechToText,mSpeechToTextCustom,mButtonMap,mButtonRecord,mVideoPlayerButton,mFindSoundDecible,mCropper,customCropper,mEditor;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -28,6 +28,7 @@ public class AccidentActivity extends AppCompatActivity  {
         mFindSoundDecible = findViewById(R.id.btn_decible);
         mCropper = findViewById(R.id.btn_copper);
         customCropper = findViewById(R.id.btn_new_cropper);
+        mEditor = findViewById(R.id.btnCustomEdito);
 
         mButtonPicture.setOnClickListener(view -> {
             Intent intent = new Intent(this, MainActivity.class);
@@ -70,6 +71,11 @@ public class AccidentActivity extends AppCompatActivity  {
 
         customCropper.setOnClickListener(view -> {
             Intent intent = new Intent(this, NewCropperActivity.class);
+            startActivity(intent);
+        });
+
+        mEditor.setOnClickListener(view -> {
+            Intent intent = new Intent(this, CustomEditor.class);
             startActivity(intent);
         });
     }

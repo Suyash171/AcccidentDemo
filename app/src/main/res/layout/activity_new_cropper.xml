@@ -12,8 +12,16 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/color_button"
         android:text="Add Text"
+        android:visibility="gone"
         android:textSize="16sp"/>
 
+    <Button
+        android:id="@+id/add_circle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/color_button"
+        android:text="Circle"
+        android:textSize="16sp"/>
 
     <Button
         android:id="@+id/clear_button"

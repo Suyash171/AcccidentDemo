@@ -59,6 +59,7 @@
         <activity android:name=".RecordWithDbActivity" />
         <activity android:name=".CopperActivity" />
         <activity android:name=".NewCropperActivity" />
+        <activity android:name=".CustomEditor" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

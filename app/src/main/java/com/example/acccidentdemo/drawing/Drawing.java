@@ -38,7 +38,10 @@ public class Drawing extends ImageView {
     private int mColor = kColor;
     private EditText editText;
     private Context mContext;
-    private String key ="";
+    private String key = "";
+    public static final int DRAW_CIRCLE = 0;
+    public static final int DRAW_CUSTOM = 1;
+    private int shape = 1;
 
     public Drawing(Context context) {
         super(context);
@@ -58,11 +61,9 @@ public class Drawing extends ImageView {
             int attr = a.getIndex(i);
             if (attr == R.styleable.DrawingView_drawingColor) {
                 setDrawingColor(a.getColor(attr, kColor));
-            }
-            else if (attr == R.styleable.DrawingView_drawingThickness) {
+            } else if (attr == R.styleable.DrawingView_drawingThickness) {
                 setDrawingThickness(a.getFloat(attr, kLineThickness));
-            }
-            else if (attr == R.styleable.DrawingView_drawingTolerance) {
+            } else if (attr == R.styleable.DrawingView_drawingTolerance) {
                 setDrawingTolerance(a.getFloat(attr, kTouchTolerance));
             }
         }
@@ -107,6 +108,7 @@ public class Drawing extends ImageView {
 
     /**
      * Let you retrieve the drawing that has been drawn inside the canvas
+     *
      * @return The drawing as a Bitmap
      */
     public Bitmap getDrawing() {
@@ -171,7 +173,7 @@ public class Drawing extends ImageView {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
 
-        mBitmap = Bitmap.createBitmap(w, (h > 0 ? h : ((View)getParent()).getHeight()), Bitmap.Config.ARGB_8888);
+        mBitmap = Bitmap.createBitmap(w, (h > 0 ? h : ((View) getParent()).getHeight()), Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
     }
 
@@ -179,25 +181,29 @@ public class Drawing extends ImageView {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
-       // editText.setDrawingCacheEnabled(true);
-       // mBitmap = editText.getDrawingCache();
-        //canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
-        canvas.drawPath(mPath, mPaint);
+        drawAccordingToShape(shape, canvas);
+    }
 
-       /* LinearLayout layout = new LinearLayout(this.getContext());
 
-        EditText textView = new EditText(this.getContext());
-        textView.setVisibility(View.VISIBLE);
-        textView.setText(key);
-        textView.setX(mX);//get x from onTouch method
-        textView.setY(mY); // get y from onTouch method
-
-        layout.addView(textView);
-
-        layout.measure(canvas.getWidth(), canvas.getHeight());
-        layout.layout(50,50, canvas.getWidth(), canvas.getHeight());
-        layout.draw(canvas);*/
+    /**
+     *
+     * @param shape
+     * @param canvas
+     */
+    private void drawAccordingToShape(int shape, Canvas canvas) {
+        switch (shape) {
+            case DRAW_CIRCLE:
+                mBitmapPaint.setColor(Color.YELLOW);
+                canvas.drawCircle(mX, mY, 35, mBitmapPaint);
+                canvas.drawPath(mPath, mPaint);
+                break;
+            case DRAW_CUSTOM:
+                canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
+                canvas.drawPath(mPath, mPaint);
+                break;
+            default:
+                break;
+        }
     }
 
 /*
@@ -245,5 +251,11 @@ public class Drawing extends ImageView {
         return true;
     }
 
+    public int getShape() {
+        return shape;
+    }
 
+    public void setShape(int shape) {
+        this.shape = shape;
+    }
 }

@@ -64,7 +64,7 @@ public class NewCropperActivity extends AppCompatActivity implements View.OnClic
 
     RelativeLayout dropLayout;
     RelativeLayout.LayoutParams params;
-    Button addText;
+    Button addText,addCircle;
 
     private HashMap<Integer,String> editTextSelected = new HashMap<>();
     private int mEditTextCounter = 0;
@@ -80,6 +80,7 @@ public class NewCropperActivity extends AppCompatActivity implements View.OnClic
         mSubmitButton = (Button) findViewById(R.id.submit_button);
         mColorButton = (Button) findViewById(R.id.color_button);
         mPickPhoto = findViewById(R.id.pick_photo);
+        addCircle = findViewById(R.id.add_circle);
 
         mThicknessText = (TextView) findViewById(R.id.thickness_value);
         mThicknessBar = (SeekBar) findViewById(R.id.thickness_bar);
@@ -104,6 +105,10 @@ public class NewCropperActivity extends AppCompatActivity implements View.OnClic
         mColorButton.setOnClickListener(this);
         mPickPhoto.setOnClickListener(this);
         mThicknessBar.setOnSeekBarChangeListener(this);
+
+        addCircle.setOnClickListener(view -> {
+            mDrawingView.setShape(Drawing.DRAW_CIRCLE);
+        });
 
         pickerConfiguration = PickerConfiguration.build()
                 .setTextColor(Color.parseColor("#000000"))
