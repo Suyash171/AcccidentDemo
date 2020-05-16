@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -23,6 +24,7 @@ import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.example.acccidentdemo.drawing.CanvasView;
+import com.example.acccidentdemo.text.TextEditorDialogFragment;
 import com.gipl.imagepicker.ImagePickerDialog;
 import com.gipl.imagepicker.ImageResult;
 import com.gipl.imagepicker.PickerConfiguration;
@@ -35,19 +37,21 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static com.example.acccidentdemo.MainActivity.getImage;
 
 public class CustomEditor extends AppCompatActivity {
 
     private CanvasView canvas = null;
-    private Button btnCircle, btnRect, btnOval, btnDraw, btnErase, btnUndo, btnRedo,btnSave,btnArrow;
+    private Button btnCircle, btnRect, btnOval, btnDraw, btnErase, btnUndo, btnRedo, btnSave, btnArrow;
     private SpeedDialView speedDialView;
 
     private Bitmap alteredBitmap;
     private PickerConfiguration pickerConfiguration = PickerConfiguration.build();
     private ImagePickerDialog imagePickerDialog;
     private static final int STORAGE_ACCESS_PERMISSION_REQUEST = 1234;
+    private HashMap<Integer, String> editTextSelected = new HashMap<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -67,7 +71,6 @@ public class CustomEditor extends AppCompatActivity {
         speedDialView = findViewById(R.id.speedDial);
         btnArrow = findViewById(R.id.btnArrow);
 
-
         Bitmap myLogo = BitmapFactory.decodeResource(getResources(), R.drawable.ic_human_body);
         Bitmap workingBitmap = Bitmap.createBitmap(myLogo);
         alteredBitmap = workingBitmap.copy(Bitmap.Config.ARGB_8888, true);
@@ -83,12 +86,31 @@ public class CustomEditor extends AppCompatActivity {
         prepareImagePicker();
 
         speedDialView.addActionItem(new SpeedDialActionItem.Builder(R.id.action_add, R.drawable.ic_adjust_black_24dp).setLabel("Add Image").create());
+        speedDialView.addActionItem(new SpeedDialActionItem.Builder(R.id.action_add_text, R.drawable.ic_adjust_black_24dp).setLabel("Add Text").create());
 
         speedDialView.setOnActionSelectedListener(speedDialActionItem -> {
             switch (speedDialActionItem.getId()) {
                 case R.id.action_add:
                     imagePickerDialog = ImagePickerDialog.display(getSupportFragmentManager(), pickerConfiguration.setSetCustomDialog(false));
                     return false; //true to keep the Speed Dial open
+
+                case R.id.action_add_text:
+                    TextEditorDialogFragment textEditorDialogFragment = TextEditorDialogFragment.show(this);
+                    textEditorDialogFragment.setOnTextEditorListener(new TextEditorDialogFragment.TextEditor() {
+                        @Override
+                        public void onDone(String inputText, int colorCode) {
+                            //final TextStyleBuilder styleBuilder = new TextStyleBuilder();
+                            //styleBuilder.withTextColor(colorCode);
+                            Toast.makeText(CustomEditor.this, inputText, Toast.LENGTH_SHORT).show();
+                            editTextSelected.put(1,inputText);
+
+                           // mPhotoEditor.addText(inputText, styleBuilder);
+                            //mTxtCurrentTool.setText(R.string.label_text);
+                        }
+                    });
+                    return false; //true to keep the Speed Dial open
+
+
                 default:
                     return false;
             }
@@ -97,7 +119,7 @@ public class CustomEditor extends AppCompatActivity {
 
         btnSave.setOnClickListener(view -> {
             Bitmap bitmap = this.canvas.getBitmap();
-            if (bitmap != null){
+            if (bitmap != null) {
                 Toast.makeText(this, "Saved...", Toast.LENGTH_SHORT).show();
             }
 
@@ -181,7 +203,7 @@ public class CustomEditor extends AppCompatActivity {
     /*
 
      */
-    private void prepareImagePicker(){
+    private void prepareImagePicker() {
         pickerConfiguration = PickerConfiguration.build()
                 .setTextColor(Color.parseColor("#000000"))
                 .setIconColor(Color.parseColor("#000000"))
@@ -213,7 +235,7 @@ public class CustomEditor extends AppCompatActivity {
                                         .centerCrop()
                                         .into(canvas);
                                 //canvas.setImageBitmap(rotatedBitmap);
-                               // canvas.drawBitmap(rotatedBitmap);
+                                // canvas.drawBitmap(rotatedBitmap);
                             }
 
                         } catch (IOException e) {

@@ -6,4 +6,9 @@
         android:itemBackground="#ffff"
         android:title="Add Image" />
 
+    <item
+        android:id="@+id/action_add_text"
+        android:itemBackground="#ffff"
+        android:title="Add Text" />
+
 </menu>

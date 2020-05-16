@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,6 +15,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -64,10 +67,11 @@ public class NewCropperActivity extends AppCompatActivity implements View.OnClic
 
     RelativeLayout dropLayout;
     RelativeLayout.LayoutParams params;
-    Button addText,addCircle;
+    Button addText, addCircle;
 
-    private HashMap<Integer,String> editTextSelected = new HashMap<>();
+    private HashMap<Integer, String> editTextSelected = new HashMap<>();
     private int mEditTextCounter = 0;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,7 +111,7 @@ public class NewCropperActivity extends AppCompatActivity implements View.OnClic
         mThicknessBar.setOnSeekBarChangeListener(this);
 
         addCircle.setOnClickListener(view -> {
-            mDrawingView.setShape(Drawing.DRAW_CIRCLE);
+
         });
 
         pickerConfiguration = PickerConfiguration.build()
@@ -169,6 +173,31 @@ public class NewCropperActivity extends AppCompatActivity implements View.OnClic
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_options, menu);
+        return true;
+
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_cirlce) {
+            mDrawingView.setShape(Drawing.Drawer.CIRCLE);
+        } else if (item.getItemId() == R.id.action_rect) {
+            mDrawingView.setShape(Drawing.Drawer.RECTANGLE);
+        } else if (item.getItemId() == R.id.action_oval) {
+
+        } else if (item.getItemId() == R.id.action_line) {
+        } else if (item.getItemId() == R.id.action_pen) {
+        } else if ((item.getItemId() == R.id.action_arrrow)) {
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+
     public class MyButtonClickListener implements View.OnClickListener {
 
         @Override
@@ -177,8 +206,8 @@ public class NewCropperActivity extends AppCompatActivity implements View.OnClic
             CustomEdittext edttxt = new CustomEdittext(v.getContext());
             relativeParent.addView(edttxt);
             edttxt.setOnLongClickListener(new MyLongClickListner());
-            if (edttxt.getText() != null){
-                editTextSelected.put(edttxt.getId(),edttxt.getText().toString());
+            if (edttxt.getText() != null) {
+                editTextSelected.put(edttxt.getId(), edttxt.getText().toString());
             }
         }
     }

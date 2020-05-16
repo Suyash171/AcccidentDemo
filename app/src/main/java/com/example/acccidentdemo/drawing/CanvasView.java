@@ -84,7 +84,7 @@ public class CanvasView extends ImageView {
     private Paint.Style paintStyle = Paint.Style.STROKE;
     private int paintStrokeColor = Color.BLACK;
     private int paintFillColor = Color.BLACK;
-    private float paintStrokeWidth = 3F;
+    private float paintStrokeWidth = 10F;
     private int opacity = 255;
     private float blur = 0F;
     private Paint.Cap lineCap = Paint.Cap.ROUND;
@@ -145,7 +145,6 @@ public class CanvasView extends ImageView {
 
     /**
      * Common initialization.
-     *
      */
     private void setup() {
         mBitmapPaint = new Paint(Paint.DITHER_FLAG);
@@ -370,15 +369,17 @@ public class CanvasView extends ImageView {
                             float top = Math.min(this.startY, y);
                             float bottom = Math.max(this.startY, y);
 
+
                             path.addRect(left, top, right, bottom, Path.Direction.CCW);
                             break;
                         case CIRCLE:
                             double distanceX = Math.abs((double) (this.startX - x));
                             double distanceY = Math.abs((double) (this.startX - y));
-                            double radius = Math.sqrt(Math.pow(distanceX, 2.0) + Math.pow(distanceY, 2.0));
 
+                            double radius = Math.sqrt(Math.pow(distanceX, 2.0) + Math.pow(distanceY, 2.0));
                             path.reset();
-                            path.addCircle(this.startX, this.startY, (float) radius, Path.Direction.CCW);
+                            path.addCircle(this.startX, this.startX, (float) radius, Path.Direction.CCW);
+
                             break;
                         case ELLIPSE:
                             RectF rect = new RectF(this.startX, this.startY, x, y);
@@ -392,7 +393,7 @@ public class CanvasView extends ImageView {
                             path.moveTo(this.startX, this.startY);
                             path.lineTo(x, y);
 
-                            drawArrow(path,canvas,this.startX, this.startY, x, y);
+                            drawArrow(path, canvas, this.startX, this.startY, x, y);
 
                             break;
                         default:
@@ -421,6 +422,10 @@ public class CanvasView extends ImageView {
         }
     }
 
+    double distance(int x, int y, int a, int b) {
+        return Math.sqrt((x - a) * (x - a) + (y - b) * (y - b));
+    }
+
     private void drawArrow(Path path, Canvas canvas, float from_x, float from_y, float to_x, float to_y) {
         float angle, anglerad, radius, lineangle;
 
@@ -445,7 +450,7 @@ public class CanvasView extends ImageView {
                 (float) (to_y - radius * sin(lineangle + (anglerad / 2.0))));
         path.close();
 
-       // canvas.drawPath(path,paint);
+        // canvas.drawPath(path,paint);
     }
 
 
@@ -984,4 +989,7 @@ public class CanvasView extends ImageView {
         return this.getBitmapAsByteArray(CompressFormat.PNG, 100);
     }
 
+    public void setDrawingThickness(float thickness) {
+        mBitmapPaint.setStrokeWidth(thickness);
+    }
 }

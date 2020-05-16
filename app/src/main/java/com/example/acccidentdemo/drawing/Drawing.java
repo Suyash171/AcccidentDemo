@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -19,6 +20,11 @@ import android.widget.LinearLayout;
 import androidx.annotation.Nullable;
 
 import com.example.acccidentdemo.R;
+
+import static java.lang.Math.PI;
+import static java.lang.Math.atan2;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
 
 public class Drawing extends ImageView {
 
@@ -39,9 +45,22 @@ public class Drawing extends ImageView {
     private EditText editText;
     private Context mContext;
     private String key = "";
-    public static final int DRAW_CIRCLE = 0;
-    public static final int DRAW_CUSTOM = 1;
+    // public static final int DRAW_CIRCLE = 0;
+    //public static final int DRAW_CUSTOM = 1;
     private int shape = 1;
+    private float startX = 0F;
+    private float startY = 0F;
+
+    // Enumeration for Drawer
+    public static class Drawer {
+        public static final int PEN = 0;
+        public static final int LINE = 1;
+        public static final int RECTANGLE = 2;
+        public static final int CIRCLE = 3;
+        public static final int ELLIPSE = 4;
+        public static final int ARROW = 5;
+    }
+
 
     public Drawing(Context context) {
         super(context);
@@ -69,6 +88,17 @@ public class Drawing extends ImageView {
         }
 
         a.recycle();
+    }
+
+    private Path createPath(MotionEvent event) {
+        Path path = new Path();
+        // Save for ACTION_MOVE
+        this.startX = event.getX();
+        this.startY = event.getY();
+
+        path.moveTo(this.startX, this.startY);
+
+        return path;
     }
 
     public int getDrawingColor() {
@@ -186,26 +216,69 @@ public class Drawing extends ImageView {
 
 
     /**
-     *
      * @param shape
      * @param canvas
      */
     private void drawAccordingToShape(int shape, Canvas canvas) {
         switch (shape) {
-            case DRAW_CIRCLE:
-                mBitmapPaint.setColor(Color.YELLOW);
-                canvas.drawCircle(mX, mY, 35, mBitmapPaint);
-                canvas.drawPath(mPath, mPaint);
+            case Drawer.CIRCLE:
+                //mBitmapPaint.setColor(Color.YELLOW);
+                // canvas.drawCircle(mX, mY, 35, mBitmapPaint);
+                ///canvas.drawPath(mPath, mPaint);
+                double distanceX = Math.abs((double) (this.startX - mX));
+                double distanceY = Math.abs((double) (this.startX - mY));
+                double radius = Math.sqrt(Math.pow(distanceX, 2.0) + Math.pow(distanceY, 2.0));
+
+                canvas.drawCircle(this.startX, this.startY, (float) radius, mPaint);
                 break;
-            case DRAW_CUSTOM:
+            case Drawer.PEN:
                 canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
                 canvas.drawPath(mPath, mPaint);
+                break;
+            case Drawer.RECTANGLE:
+
+                float left = Math.min(this.startX, mX);
+                float right = Math.max(this.startX, mX);
+                float top = Math.min(this.startY, mY);
+                float bottom = Math.max(this.startY, mY);
+
+                int sideLength = 200;
+                Rect rectangle = new Rect((int) left,(int) right,(int) top,(int)bottom);
+                //path.addRect(left, top, right, bottom, Path.Direction.CCW);
+                canvas.drawRect(rectangle, mPaint);
+
                 break;
             default:
                 break;
         }
     }
 
+    private void drawArrow(Paint paint, Canvas canvas, float from_x, float from_y, float to_x, float to_y) {
+        float angle, anglerad, radius, lineangle;
+
+        //values to change for other appearance *CHANGE THESE FOR OTHER SIZE ARROWHEADS*
+        radius = 10;
+        angle = 15;
+
+        //some angle calculations
+        anglerad = (float) (PI * angle / 180.0f);
+        lineangle = (float) (atan2(to_y - from_y, to_x - from_x));
+
+        //tha line
+        canvas.drawLine(from_x, from_y, to_x, to_y, paint);
+
+        //tha triangle
+        Path path = new Path();
+        path.setFillType(Path.FillType.EVEN_ODD);
+        path.moveTo(to_x, to_y);
+        path.lineTo((float) (to_x - radius * cos(lineangle - (anglerad / 2.0))),
+                (float) (to_y - radius * sin(lineangle - (anglerad / 2.0))));
+        path.lineTo((float) (to_x - radius * cos(lineangle + (anglerad / 2.0))),
+                (float) (to_y - radius * sin(lineangle + (anglerad / 2.0))));
+        path.close();
+
+        canvas.drawPath(path, paint);
+    }
 /*
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
@@ -235,10 +308,12 @@ public class Drawing extends ImageView {
 
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                createPath(e);
                 startTouch(x, y);
                 invalidate();
                 break;
             case MotionEvent.ACTION_MOVE:
+                createPath(e);
                 moveTouch(x, y);
                 invalidate();
                 break;
