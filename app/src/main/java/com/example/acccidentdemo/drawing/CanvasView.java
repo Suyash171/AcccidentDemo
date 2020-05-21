@@ -27,6 +27,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.example.acccidentdemo.R;
+import com.google.android.gms.dynamic.IFragmentWrapper;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -46,7 +47,8 @@ public class CanvasView extends ImageView {
     public enum Mode {
         DRAW,
         TEXT,
-        ERASER;
+        ERASER,
+        BRUSH,
     }
 
     // Enumeration for Drawer
@@ -92,6 +94,8 @@ public class CanvasView extends ImageView {
 
     // for Text
     private String text = "";
+    private List<String> textArray = new ArrayList<>();
+
     private Typeface fontFamily = Typeface.DEFAULT;
     private float fontSize = 32F;
     private Paint.Align textAlign = Paint.Align.RIGHT;  // fixed
@@ -100,6 +104,11 @@ public class CanvasView extends ImageView {
     private float textY = 0F;
 
     private Paint mBitmapPaint;
+
+    //BRUSH
+    public static final float DEFAULT_BRUSH_SIZE = 25.0f;
+    private float mBrushSize = DEFAULT_BRUSH_SIZE;
+
 
     // for Drawer
     private float startX = 0F;
@@ -172,7 +181,7 @@ public class CanvasView extends ImageView {
 
         // for Text
         if (this.mode == Mode.TEXT) {
-            paint.setTypeface(this.fontFamily);
+           // paint.setTypeface(this.fontFamily);
             paint.setTextSize(this.fontSize);
             paint.setTextAlign(this.textAlign);
             paint.setStrokeWidth(0F);
@@ -195,6 +204,7 @@ public class CanvasView extends ImageView {
 
         return paint;
     }
+
 
     /**
      * This method initialize Path.
@@ -255,21 +265,29 @@ public class CanvasView extends ImageView {
      * @param canvas the instance of Canvas
      */
     private void drawText(Canvas canvas) {
-        if (this.text.length() <= 0) {
-            return;
+        if (textArray != null && textArray.size() != 0){
+            for (String text : textArray){
+
+                if (text.length() <= 0) {
+                    return;
+                }
+
+                if (this.mode == Mode.TEXT) {
+                    this.textX = this.startX;
+                    this.textY = this.startY;
+
+                    this.textPaint = this.createPaint();
+                }
+
+                float textX = this.textX;
+                float textY = this.textY;
+
+                canvas.drawText(text, textX, textY, this.textPaint);
+            }
         }
 
-        if (this.mode == Mode.TEXT) {
-            this.textX = this.startX;
-            this.textY = this.startY;
 
-            this.textPaint = this.createPaint();
-        }
-
-        float textX = this.textX;
-        float textY = this.textY;
-
-        Paint paintForMeasureText = new Paint();
+      /*  Paint paintForMeasureText = new Paint();
 
         // Line break automatically
         float textLength = paintForMeasureText.measureText(this.text);
@@ -291,7 +309,9 @@ public class CanvasView extends ImageView {
             y += this.fontSize;
 
             canvas.drawText(substring, textX, y, this.textPaint);
-        }
+        }*/
+
+
     }
 
     /**
@@ -493,7 +513,7 @@ public class CanvasView extends ImageView {
 
         this.drawText(canvas);
 
-        this.canvas = canvas;
+        //this.canvas = canvas;
     }
 
     @Override
@@ -702,6 +722,7 @@ public class CanvasView extends ImageView {
      */
     public void setText(String text) {
         this.text = text;
+        textArray.add(text);
     }
 
     /**

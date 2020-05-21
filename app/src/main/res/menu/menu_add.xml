@@ -11,4 +11,9 @@
         android:itemBackground="#ffff"
         android:title="Add Text" />
 
+    <item
+        android:id="@+id/action_add_brush"
+        android:itemBackground="#ffff"
+        android:title="Add Brush" />
+
 </menu>
