@@ -86,26 +86,23 @@ public class CustomEditor extends AppCompatActivity implements CustomDialogClass
 
         canvas.setImageBitmap(alteredBitmap);
 
-        /*btnText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                llroot = (ViewGroup) v.getParent();
-                TextEditorDialogFragment textEditorDialogFragment = TextEditorDialogFragment.show(CustomEditor.this);
-                textEditorDialogFragment.setOnTextEditorListener((inputText, colorCode) -> {
-                    //final TextStyleBuilder styleBuilder = new TextStyleBuilder();
-                    //styleBuilder.withTextColor(colorCode);
+        /*btnText.setOnClickListener(v -> {
+            llroot = (ViewGroup) v.getParent();
+            TextEditorDialogFragment textEditorDialogFragment = TextEditorDialogFragment.show(CustomEditor.this);
+            textEditorDialogFragment.setOnTextEditorListener((inputText, colorCode) -> {
+                //final TextStyleBuilder styleBuilder = new TextStyleBuilder();
+                //styleBuilder.withTextColor(colorCode);
 
-                    Toast.makeText(CustomEditor.this, inputText, Toast.LENGTH_SHORT).show();
-                    TextView textView = new TextView(CustomEditor.this);
-                    textView.setText(inputText);
-                    textView.setTextSize(10);
-                    textView.setTextColor(Color.RED);
-                    textView.setOnLongClickListener(new MyLongClickListner());
-                    textView.setOnDragListener(new MyDragListner());
-                    llroot.addView(textView);
+                Toast.makeText(CustomEditor.this, inputText, Toast.LENGTH_SHORT).show();
+                TextView textView = new TextView(CustomEditor.this);
+                textView.setText(inputText);
+                textView.setTextSize(10);
+                textView.setTextColor(Color.RED);
+                textView.setOnLongClickListener(new MyLongClickListner());
+                textView.setOnDragListener(new MyDragListner());
+                llroot.addView(textView);
 
-                });
-            }
+            });
         });*/
 
         Glide.with(this)
@@ -132,7 +129,7 @@ public class CustomEditor extends AppCompatActivity implements CustomDialogClass
                         //final TextStyleBuilder styleBuilder = new TextStyleBuilder();
                         //styleBuilder.withTextColor(colorCode);
 
-                      /*  Toast.makeText(CustomEditor.this, inputText, Toast.LENGTH_SHORT).show();
+                      /* Toast.makeText(CustomEditor.this, inputText, Toast.LENGTH_SHORT).show();
                         TextView textView = new TextView(CustomEditor.this);
                         textView.setText(inputText);
                         textView.setTextSize(10);
@@ -142,15 +139,15 @@ public class CustomEditor extends AppCompatActivity implements CustomDialogClass
                         llroot.addView(textView);*/
 
                         //ViewGroup relativeParent = (ViewGroup) canvas.getParent();
-                        CustomEdittext edttxt = new CustomEdittext(canvas.getContext());
+                        //CustomEdittext edttxt = new CustomEdittext(canvas.getContext());
                         // Change Mode
                         this.canvas.setMode(CanvasView.Mode.TEXT);
                         // SetterSetter
                         this.canvas.setText(inputText);
                         // Getter
                         //String text = this.canvas.getText();
-                        edttxt.setOnLongClickListener(new MyLongClickListner());
-                        edttxt.setOnDragListener(new MyDragListner());
+                        //edttxt.setOnLongClickListener(new MyLongClickListner());
+                        //edttxt.setOnDragListener(new MyDragListner());
 
                         //edttxt.setOnLongClickListener(new NewCropperActivity.MyLongClickListner());
                         // mPhotoEditor.addText(inputTex, styleBuilder);
