@@ -2,11 +2,12 @@ package com.example.acccidentdemo;
 
 import android.view.DragEvent;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 public class MyDragListener implements View.OnDragListener {
 
-    private RelativeLayout.LayoutParams params;
+    private LinearLayout.LayoutParams params;
 
     @Override
     public boolean onDrag(View v, DragEvent event) {
@@ -15,7 +16,7 @@ public class MyDragListener implements View.OnDragListener {
         switch (event.getAction()) {
             case DragEvent.ACTION_DRAG_STARTED:
 
-                params = (RelativeLayout.LayoutParams) view.getLayoutParams();
+                params = (LinearLayout.LayoutParams) view.getLayoutParams();
                 break;
 
             case DragEvent.ACTION_DRAG_ENTERED:

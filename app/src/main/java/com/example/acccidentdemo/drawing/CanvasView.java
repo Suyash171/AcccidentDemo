@@ -94,7 +94,7 @@ public class CanvasView extends ImageView {
 
     // for Text
     private String text = "";
-    private List<String> textArray = new ArrayList<>();
+    private List<TextModel> textArray = new ArrayList<>();
 
     private Typeface fontFamily = Typeface.DEFAULT;
     private float fontSize = 32F;
@@ -104,6 +104,8 @@ public class CanvasView extends ImageView {
     private float textY = 0F;
 
     private Paint mBitmapPaint;
+
+    private int pos = -1;
 
     //BRUSH
     public static final float DEFAULT_BRUSH_SIZE = 25.0f;
@@ -181,7 +183,7 @@ public class CanvasView extends ImageView {
 
         // for Text
         if (this.mode == Mode.TEXT) {
-           // paint.setTypeface(this.fontFamily);
+            //paint.setTypeface(this.fontFamily);
             paint.setTextSize(this.fontSize);
             paint.setTextAlign(this.textAlign);
             paint.setStrokeWidth(0F);
@@ -191,7 +193,6 @@ public class CanvasView extends ImageView {
             // Eraser
             paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
             paint.setARGB(0, 0, 0, 0);
-
             // paint.setColor(this.baseColor);
             // paint.setShadowLayer(this.blur, 0F, 0F, this.baseColor);
         } else {
@@ -246,6 +247,9 @@ public class CanvasView extends ImageView {
             for (int i = this.historyPointer, size = this.paintLists.size(); i < size; i++) {
                 this.pathLists.remove(this.historyPointer);
                 this.paintLists.remove(this.historyPointer);
+                if (textArray.size() != 0) {
+                    this.textArray.remove(this.historyPointer);
+                }
             }
         }
     }
@@ -265,27 +269,48 @@ public class CanvasView extends ImageView {
      * @param canvas the instance of Canvas
      */
     private void drawText(Canvas canvas) {
-        if (textArray != null && textArray.size() != 0){
-            for (String text : textArray){
+        /*if (textArray != null && textArray.size() != 0){
+            for (TextModel textModel : textArray){*/
 
-                if (text.length() <= 0) {
-                    return;
-                }
+        if (text.length() <= 0) {
+            return;
+        }
 
-                if (this.mode == Mode.TEXT) {
-                    this.textX = this.startX;
-                    this.textY = this.startY;
+        if (this.mode == Mode.TEXT) {
+            this.textX = this.startX;
+            this.textY = this.startY;
 
-                    this.textPaint = this.createPaint();
-                }
+            this.textPaint = this.createPaint();
+        }
 
-                float textX = this.textX;
-                float textY = this.textY;
+        //float textX = this.textX;
+        //float textY = this.textY;
 
-                canvas.drawText(text, textX, textY, this.textPaint);
+        float textX = this.textX;
+        float textY = this.textY;
+
+        //canvas.drawText(text, textX, textY, this.textPaint);
+
+
+        for (TextModel text : textArray) {
+            // TextModel text = textArray.get(pos);
+            if (text.getxCord() == 0 && text.getyCord() == 0) {
+                canvas.drawText(text.getText(), textX, textY, this.textPaint);
+                text.setxCord(textX);
+                text.setyCord(textY);
+            } else {
+                canvas.drawText(text.getText(), text.getxCord(), text.getyCord(), this.textPaint);
+            }
+            if (this.mode == Mode.TEXT) {
+                this.startX = 0;
+                this.startY = 0;
             }
         }
 
+
+        /*      }
+        }
+*/
 
       /*  Paint paintForMeasureText = new Paint();
 
@@ -310,7 +335,6 @@ public class CanvasView extends ImageView {
 
             canvas.drawText(substring, textX, y, this.textPaint);
         }*/
-
 
     }
 
@@ -345,7 +369,7 @@ public class CanvasView extends ImageView {
             case TEXT:
                 this.startX = event.getX();
                 this.startY = event.getY();
-
+                this.updateHistory(this.createPath(event));
                 break;
             default:
                 break;
@@ -446,7 +470,8 @@ public class CanvasView extends ImageView {
         return Math.sqrt((x - a) * (x - a) + (y - b) * (y - b));
     }
 
-    private void drawArrow(Path path, Canvas canvas, float from_x, float from_y, float to_x, float to_y) {
+    private void drawArrow(Path path, Canvas canvas, float from_x, float from_y, float to_x,
+                           float to_y) {
         float angle, anglerad, radius, lineangle;
 
         //values to change for other appearance *CHANGE THESE FOR OTHER SIZE ARROWHEADS*
@@ -507,9 +532,9 @@ public class CanvasView extends ImageView {
         for (int i = 0; i < this.historyPointer; i++) {
             Path path = this.pathLists.get(i);
             Paint paint = this.paintLists.get(i);
-
             canvas.drawPath(path, paint);
         }
+
 
         this.drawText(canvas);
 
@@ -626,6 +651,7 @@ public class CanvasView extends ImageView {
      */
     public boolean undo() {
         if (canUndo()) {
+            // textArray.clear();
             this.historyPointer--;
             this.invalidate();
 
@@ -721,8 +747,18 @@ public class CanvasView extends ImageView {
      * @param text
      */
     public void setText(String text) {
+        this.pathLists.add(new Path());
+        this.paintLists.add(this.createPaint());
+
+        historyPointer++;
+       /* canvas.save();
+        bitmap = getDrawing();
+        invalidate();
+        canvas = new Canvas(bitmap);*/
         this.text = text;
-        textArray.add(text);
+        TextModel textModel = new TextModel(startX, startY, text);
+        textArray.add(textModel);
+
     }
 
     /**
@@ -979,7 +1015,8 @@ public class CanvasView extends ImageView {
      * @param quality
      * @return This is returned as byte array of bitmap.
      */
-    public static byte[] getBitmapAsByteArray(Bitmap bitmap, CompressFormat format, int quality) {
+    public static byte[] getBitmapAsByteArray(Bitmap bitmap, CompressFormat format,
+                                              int quality) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         bitmap.compress(format, quality, byteArrayOutputStream);
 

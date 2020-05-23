@@ -17,6 +17,21 @@
         app:photo_src="@drawable/ic_demo_body" />
 
 
+    <LinearLayout
+        android:id="@+id/llvView"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_gravity="center_horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:background="#16000000"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        android:orientation="horizontal">
+
+    </LinearLayout>
+
     <com.example.acccidentdemo.drawing.CanvasView
         android:id="@+id/canvas"
         android:layout_width="match_parent"
@@ -122,6 +137,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:text="Arrow"
+        android:visibility="gone"
         app:layout_constraintStart_toEndOf="@+id/btnSave"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -132,7 +148,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginBottom="8dp"
         android:text="Text"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/btn_Cirlce"
         app:layout_constraintStart_toStartOf="parent" />
 

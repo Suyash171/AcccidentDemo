@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,12 +48,14 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import ja.burhanrashid52.photoeditor.ViewType;
+
 import static com.example.acccidentdemo.MainActivity.getImage;
 
 public class CustomEditor extends AppCompatActivity implements CustomDialogClass.ISelectedValue {
 
     private CanvasView canvas = null;
-    private Button btnCircle, btnRect, btnOval, btnDraw, btnErase, btnUndo, btnRedo, btnSave, btnArrow,btnText;
+    private Button btnCircle, btnRect, btnOval, btnDraw, btnErase, btnUndo, btnRedo, btnSave, btnArrow, btnText;
     private SpeedDialView speedDialView;
 
     private Bitmap alteredBitmap;
@@ -61,6 +64,7 @@ public class CustomEditor extends AppCompatActivity implements CustomDialogClass
     private static final int STORAGE_ACCESS_PERMISSION_REQUEST = 1234;
     private HashMap<Integer, String> editTextSelected = new HashMap<>();
     private ViewGroup llroot;
+    private LinearLayout view;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -79,31 +83,40 @@ public class CustomEditor extends AppCompatActivity implements CustomDialogClass
         speedDialView = findViewById(R.id.speedDial);
         btnArrow = findViewById(R.id.btnArrow);
         btnText = findViewById(R.id.btn_ad_text);
+        view = findViewById(R.id.llvView);
 
         Bitmap myLogo = BitmapFactory.decodeResource(getResources(), R.drawable.ic_human_body);
         Bitmap workingBitmap = Bitmap.createBitmap(myLogo);
         alteredBitmap = workingBitmap.copy(Bitmap.Config.ARGB_8888, true);
 
+
         canvas.setImageBitmap(alteredBitmap);
 
-        /*btnText.setOnClickListener(v -> {
-            llroot = (ViewGroup) v.getParent();
+        view.setOnDragListener(new MyDragListener());
+
+        btnText.setOnClickListener(v -> {
+            //view = (LinearLayout) v.getParent();
             TextEditorDialogFragment textEditorDialogFragment = TextEditorDialogFragment.show(CustomEditor.this);
             textEditorDialogFragment.setOnTextEditorListener((inputText, colorCode) -> {
                 //final TextStyleBuilder styleBuilder = new TextStyleBuilder();
                 //styleBuilder.withTextColor(colorCode);
+                view.setVisibility(View.VISIBLE);
+                this.canvas.setMode(CanvasView.Mode.TEXT);
+                view.bringToFront();
 
                 Toast.makeText(CustomEditor.this, inputText, Toast.LENGTH_SHORT).show();
                 TextView textView = new TextView(CustomEditor.this);
                 textView.setText(inputText);
-                textView.setTextSize(10);
+                textView.setTextSize(20);
                 textView.setTextColor(Color.RED);
+                textView.setTag(inputText);
+                Log.d("X : " + textView.getX(),"Y :" + textView.getY());
                 textView.setOnLongClickListener(new MyLongClickListner());
-                textView.setOnDragListener(new MyDragListner());
-                llroot.addView(textView);
+                //textView.setOnDragListener(new MyDragListner());
 
+                addViewToParent(textView);
             });
-        });*/
+        });
 
         Glide.with(this)
                 .asBitmap()
@@ -141,8 +154,12 @@ public class CustomEditor extends AppCompatActivity implements CustomDialogClass
                         //ViewGroup relativeParent = (ViewGroup) canvas.getParent();
                         //CustomEdittext edttxt = new CustomEdittext(canvas.getContext());
                         // Change Mode
+
+                        view.setVisibility(View.VISIBLE);
+
                         this.canvas.setMode(CanvasView.Mode.TEXT);
-                        // SetterSetter
+                        // Setter Setter
+                        this.canvas.setFontSize(50);
                         this.canvas.setText(inputText);
                         // Getter
                         //String text = this.canvas.getText();
@@ -266,6 +283,18 @@ public class CustomEditor extends AppCompatActivity implements CustomDialogClass
         // Setter
     }
 
+    /**
+     * Add to root view from image,emoji and text to our parent view
+     *
+     * @param rootView rootview of image,text and emoji
+     */
+    private void addViewToParent(View rootView) {
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+        view.addView(rootView, params);
+    }
+
     public class MyLongClickListner implements View.OnLongClickListener {
 
         @Override
@@ -286,6 +315,14 @@ public class CustomEditor extends AppCompatActivity implements CustomDialogClass
                     , v           // local data about the drag and drop operation
                     , 0          // flags (not currently used, set to 0)
             );
+
+/*            ClipData dragdata = ClipData.newPlainText("", "");
+
+            View.DragShadowBuilder shdwbldr = new View.DragShadowBuilder(v);
+
+            v.startDrag(dragdata, shdwbldr, v, 0);
+            v.setVisibility(View.INVISIBLE);*/
+
             return true;
         }
 
