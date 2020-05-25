@@ -208,6 +208,22 @@ public class CanvasView extends ImageView {
 
 
     /**
+     * @param text
+     * @param x
+     * @param y
+     */
+    public void drawText(String text, float x, float y) {
+        //this.textPaint = this.createPaint();
+        this.pathLists.add(new Path());
+        this.paintLists.add(this.createPaint());
+        this.startY = y;
+        this.startX = x;
+        this.text = text;
+        TextModel textModel = new TextModel(startX, startY, text);
+        textArray.add(textModel);
+    }
+
+    /**
      * This method initialize Path.
      * Namely, this method creates the instance of Path,
      * and moves current position.
@@ -535,7 +551,6 @@ public class CanvasView extends ImageView {
             canvas.drawPath(path, paint);
         }
 
-
         this.drawText(canvas);
 
         //this.canvas = canvas;
@@ -758,7 +773,6 @@ public class CanvasView extends ImageView {
         this.text = text;
         TextModel textModel = new TextModel(startX, startY, text);
         textArray.add(textModel);
-
     }
 
     /**
