@@ -429,7 +429,6 @@ public class CanvasView extends ImageView {
                             float top = Math.min(this.startY, y);
                             float bottom = Math.max(this.startY, y);
 
-
                             path.addRect(left, top, right, bottom, Path.Direction.CCW);
                             break;
                         case CIRCLE:

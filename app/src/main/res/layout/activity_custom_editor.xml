@@ -41,6 +41,7 @@
             android:id="@+id/canvas"
             android:layout_width="match_parent"
             android:layout_height="300dp"
+            android:scaleType="centerInside"
             android:layout_gravity="center_horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -79,12 +80,11 @@
         android:id="@+id/btnDraw"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="11dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
         android:text="Draw"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/btnOval" />
+        app:layout_constraintBottom_toTopOf="@+id/btnRect"
+        app:layout_constraintStart_toEndOf="@+id/btn_ad_text" />
 
     <Button
         android:id="@+id/btnEarseer"
@@ -131,7 +131,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/btnDraw"
+        app:layout_constraintBottom_toTopOf="@+id/btnOval"
         app:layout_constraintEnd_toEndOf="parent"
         app:sdMainFabClosedSrc="@drawable/ic_plus" />
 
@@ -161,11 +161,11 @@
         android:id="@+id/btnClearText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="9dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:text="Clear Text"
-        app:layout_constraintStart_toEndOf="@+id/btnSave"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toEndOf="@+id/btnClear"
+        app:layout_constraintTop_toBottomOf="@+id/btnSave" />
 
     <Button
         android:id="@+id/btnColor"
@@ -183,6 +183,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Clear"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.082"
         app:layout_constraintStart_toEndOf="@+id/btnColor"
