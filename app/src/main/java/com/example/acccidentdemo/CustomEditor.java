@@ -5,57 +5,71 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.DragEvent;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.example.acccidentdemo.drawing.CanvasView;
+import com.example.acccidentdemo.drawing.TextModel;
 import com.example.acccidentdemo.text.CustomDialogClass;
 import com.example.acccidentdemo.text.DragableEditTextView;
+import com.example.acccidentdemo.text.OnDragTouchListener;
+import com.example.acccidentdemo.text.TextDisplayDialogFragment;
 import com.example.acccidentdemo.text.TextEditorDialogFragment;
 import com.gipl.imagepicker.ImagePickerDialog;
 import com.gipl.imagepicker.ImageResult;
 import com.gipl.imagepicker.PickerConfiguration;
 import com.gipl.imagepicker.PickerListener;
 import com.gipl.imagepicker.PickerResult;
+import com.larswerkman.holocolorpicker.ColorPicker;
 import com.leinardi.android.speeddial.SpeedDialActionItem;
 import com.leinardi.android.speeddial.SpeedDialView;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import ja.burhanrashid52.photoeditor.ViewType;
 
 import static com.example.acccidentdemo.MainActivity.getImage;
 
-public class CustomEditor extends AppCompatActivity implements CustomDialogClass.ISelectedValue {
+public class CustomEditor extends AppCompatActivity implements CustomDialogClass.ISelectedValue, View.OnTouchListener, ColorPicker.OnColorChangedListener {
 
     private CanvasView canvas = null;
-    private Button btnCircle, btnRect, btnOval, btnDraw, btnErase, btnUndo, btnRedo, btnSave, btnArrow, btnText;
+    private Button btnCircle, btnRect, btnOval, btnDraw, btnErase, btnUndo, btnRedo, btnSave, btnArrow, btnText, btnClearText, btnSelectColor, btnClear;
     private SpeedDialView speedDialView;
 
     private Bitmap alteredBitmap;
@@ -65,6 +79,17 @@ public class CustomEditor extends AppCompatActivity implements CustomDialogClass
     private HashMap<Integer, String> editTextSelected = new HashMap<>();
     private ViewGroup llroot;
     private LinearLayout view;
+    private List<TextModel> textModelList = new ArrayList<>();
+    TextView _view;
+    ViewGroup _root;
+    private RelativeLayout llvParent;
+    private int _xDelta;
+    private int _yDelta;
+    private long then;
+    private int longClickDuration = 500; //for long click to trigger after 5 seconds
+    private boolean enableLongClick = false;
+    private int textSize = 10;
+    private int pos = -1;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -83,7 +108,12 @@ public class CustomEditor extends AppCompatActivity implements CustomDialogClass
         speedDialView = findViewById(R.id.speedDial);
         btnArrow = findViewById(R.id.btnArrow);
         btnText = findViewById(R.id.btn_ad_text);
-        view = findViewById(R.id.llvView);
+        llvParent = findViewById(R.id.llvParent);
+        // view = findViewById(R.id.llvView);
+        btnClearText = findViewById(R.id.btnClearText);
+        btnSelectColor = findViewById(R.id.btnColor);
+        _root = (ViewGroup) findViewById(R.id.llvView);
+        btnClear = findViewById(R.id.btnClear);
 
         Bitmap myLogo = BitmapFactory.decodeResource(getResources(), R.drawable.ic_human_body);
         Bitmap workingBitmap = Bitmap.createBitmap(myLogo);
@@ -92,7 +122,7 @@ public class CustomEditor extends AppCompatActivity implements CustomDialogClass
 
         canvas.setImageBitmap(alteredBitmap);
 
-        view.setOnDragListener(new MyDragListener());
+        //view.setOnDragListener(new MyDragListener());
 
         btnText.setOnClickListener(v -> {
             //view = (LinearLayout) v.getParent();
@@ -100,23 +130,34 @@ public class CustomEditor extends AppCompatActivity implements CustomDialogClass
             textEditorDialogFragment.setOnTextEditorListener((inputText, colorCode) -> {
                 //final TextStyleBuilder styleBuilder = new TextStyleBuilder();
                 //styleBuilder.withTextColor(colorCode);
-                view.setVisibility(View.VISIBLE);
                 this.canvas.setMode(CanvasView.Mode.TEXT);
-                view.bringToFront();
+                pos++;
 
-                Toast.makeText(CustomEditor.this, inputText, Toast.LENGTH_SHORT).show();
-                TextView textView = new TextView(CustomEditor.this);
-                textView.setText(inputText);
-                textView.setTextSize(20);
-                textView.setTextColor(Color.RED);
-                textView.setTag(inputText);
-                Log.d("X : " + textView.getX(),"Y :" + textView.getY());
-                textView.setOnLongClickListener(new MyLongClickListner());
-                //textView.setOnDragListener(new MyDragListner());
+                //TextDisplayDialogFragment _view = TextDisplayDialogFragment.show(CustomEditor.this);
+                /// TextDisplayDialogFragment  _view = TextDisplayDialogFragment.show(CustomEditor.this, inputText,Color.WHITE,-1);
 
-                addViewToParent(textView);
+                TextView _view = new TextView(this);
+                _view.setText(inputText);
+                _view.setId(pos);
+                _view.setTextSize(textSize);
+                _view.setDrawingCacheEnabled(true);
+                _view.setTextColor(canvas.getPaintStrokeColor());
+                RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+                layoutParams.leftMargin = 50;
+                layoutParams.topMargin = 50;
+                layoutParams.bottomMargin = -250;
+                layoutParams.rightMargin = -250;
+                _view.setLayoutParams(layoutParams);
+                _view.setOnTouchListener(this);
+
+                _root.addView(_view);
+                _root.setVisibility(View.VISIBLE);
+                _root.bringToFront();
+                TextModel textModel = new TextModel(_view.getX(), _view.getY(), inputText);
+                textModelList.add(textModel);
             });
         });
+
 
         Glide.with(this)
                 .asBitmap()
@@ -182,8 +223,41 @@ public class CustomEditor extends AppCompatActivity implements CustomDialogClass
             }
         });
 
+        btnClearText.setOnClickListener(view -> {
+            if (textModelList != null && textModelList.size() != 0) {
+                textModelList.clear();
+                _root.removeAllViews();
+            }
+        });
+
+        btnSelectColor.setOnClickListener(view -> {
+            ColorPicker colorPicker = new ColorPicker(this);
+            colorPicker.setOldCenterColor(canvas.getPaintStrokeColor());
+            colorPicker.setOnColorChangedListener(this);
+
+            new AlertDialog.Builder(this).setView(colorPicker).show();
+        });
+
+        btnClear.setOnClickListener(view -> {
+            canvas.clear();
+        });
 
         btnSave.setOnClickListener(view -> {
+
+            Bitmap bitmap = loadBitmapFromView(llvParent);
+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                setSavePicture(bitmap);
+            } else {
+                startWriteStorageAccessPersmissionRequest();
+            }
+
+         /*   if (textModelList != null && textModelList.size() != 0) {
+                for (TextModel textModel : textModelList) {
+                    canvas.drawText(textModel.getText(), textModel.getxCord(), textModel.getyCord());
+                }
+            }
+
             Bitmap bitmap = this.canvas.getBitmap();
             if (bitmap != null) {
                 Toast.makeText(this, "Saved...", Toast.LENGTH_SHORT).show();
@@ -196,16 +270,15 @@ public class CustomEditor extends AppCompatActivity implements CustomDialogClass
                 setSavePicture(canvas.getDrawing());
             } else {
                 startWriteStorageAccessPersmissionRequest();
-            }
+            }*/
         });
 
         btnArrow.setOnClickListener(view -> {
-            this.canvas.setDrawer(CanvasView.Drawer.ARROW);            // Draw Circle
+            this.canvas.setDrawer(CanvasView.Drawer.ARROW);           // Draw Circle
             // Setter
             this.canvas.setBaseColor(Color.WHITE);
             // Getter
             // Setter
-            this.canvas.setPaintStrokeColor(Color.RED);
             int backgroundColor = this.canvas.getBaseColor();
         });
 
@@ -229,7 +302,6 @@ public class CustomEditor extends AppCompatActivity implements CustomDialogClass
             this.canvas.setBaseColor(Color.WHITE);
             // Getter
             // Setter
-            this.canvas.setPaintStrokeColor(Color.RED);
             int backgroundColor = this.canvas.getBaseColor();
         });
 
@@ -240,7 +312,6 @@ public class CustomEditor extends AppCompatActivity implements CustomDialogClass
             this.canvas.setBaseColor(Color.WHITE);
             // Getter
             // Setter
-            this.canvas.setPaintStrokeColor(Color.RED);
             int backgroundColor = this.canvas.getBaseColor();
         });
 
@@ -252,7 +323,6 @@ public class CustomEditor extends AppCompatActivity implements CustomDialogClass
             this.canvas.setBaseColor(Color.WHITE);
             // Getter
             // Setter
-            this.canvas.setPaintStrokeColor(Color.RED);
             int backgroundColor = this.canvas.getBaseColor();
         });
 
@@ -263,12 +333,26 @@ public class CustomEditor extends AppCompatActivity implements CustomDialogClass
             this.canvas.setBaseColor(Color.WHITE);
             // Getter
             // Setter
-            this.canvas.setPaintStrokeColor(Color.RED);
             int backgroundColor = this.canvas.getBaseColor();
         });
 
 
     }
+
+
+    /**
+     * THIS METHOD TAKES SNAPSHOT OF VIEW
+     *
+     * @param v
+     * @return
+     */
+    public static Bitmap loadBitmapFromView(View v) {
+        Bitmap b = Bitmap.createBitmap(v.getWidth(), v.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(b);
+        v.draw(c);
+        return b;
+    }
+
 
     @Override
     public void seekBarValue(int value) {
@@ -277,11 +361,12 @@ public class CustomEditor extends AppCompatActivity implements CustomDialogClass
         this.canvas.setBaseColor(Color.WHITE);
         // Getter
         // Setter
+        this.textSize = value;
         this.canvas.setPaintStrokeWidth(value);
-        this.canvas.setPaintStrokeColor(Color.RED);
         int backgroundColor = this.canvas.getBaseColor();
         // Setter
     }
+
 
     /**
      * Add to root view from image,emoji and text to our parent view
@@ -293,6 +378,84 @@ public class CustomEditor extends AppCompatActivity implements CustomDialogClass
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
         view.addView(rootView, params);
+    }
+
+    @Override
+    public boolean onTouch(View view, MotionEvent event) {
+        final int X = (int) event.getRawX();
+        final int Y = (int) event.getRawY();
+        int tagPos = view.getId();
+        //TextModel textModel = textModelList.get();
+        TextModel textModel = getSelectedTextViewModel(view);
+        if (textModel != null) {
+            textModel.setyCord(Y);
+            textModel.setxCord(X);
+        }
+        switch (event.getAction() & MotionEvent.ACTION_MASK) {
+            case MotionEvent.ACTION_DOWN:
+                RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
+                _xDelta = X - lParams.leftMargin;
+                _yDelta = Y - lParams.topMargin;
+                break;
+            case MotionEvent.ACTION_UP:
+                long eventDuration = event.getEventTime() - event.getDownTime();
+                if (eventDuration > longClickDuration) {
+                    onLongClick(view);
+                    //Toast.makeText(this, "Long Click has happened!", Toast.LENGTH_SHORT).show();
+                } else {
+                    onClick(view);
+                    ///Toast.makeText(this, "Short Click has happened...", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case MotionEvent.ACTION_POINTER_DOWN:
+                break;
+            case MotionEvent.ACTION_POINTER_UP:
+                break;
+            case MotionEvent.ACTION_MOVE:
+                // enableLongClick = false;
+                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
+                layoutParams.leftMargin = X - _xDelta;
+                layoutParams.topMargin = Y - _yDelta;
+                layoutParams.rightMargin = -250;
+                layoutParams.bottomMargin = -250;
+                view.setLayoutParams(layoutParams);
+
+                break;
+        }
+        _root.invalidate();
+        return true;
+    }
+
+    /**
+     * @param view
+     * @return
+     */
+    private TextModel getSelectedTextViewModel(View view) {
+        if (textModelList != null && textModelList.size() != 0) {
+            for (int i = 0; i < textModelList.size(); i++) {
+                if (textModelList.get(i).getText().equalsIgnoreCase(((TextView) view).getText().toString())) {
+                    return textModelList.get(i);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param view
+     */
+    private void onClick(View view) {
+        createAlert(view);
+        // _root.removeView(view);
+    }
+
+    private void onLongClick(View view) {
+
+    }
+
+    @Override
+    public void onColorChanged(int color) {
+        canvas.setPaintStrokeColor(color);
     }
 
     public class MyLongClickListner implements View.OnLongClickListener {
@@ -498,6 +661,36 @@ public class CustomEditor extends AppCompatActivity implements CustomDialogClass
             if (imagePickerDialog != null)
                 imagePickerDialog.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    private void createAlert(View view) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setMessage("Are you sure, You wanted to remove selected text  ?");
+        alertDialogBuilder.setPositiveButton("yes",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        int id = view.getId();
+                        for (int i = 0; i < textModelList.size(); i++) {
+                            if (textModelList.get(i).getText().equalsIgnoreCase(((TextView) view).getText().toString())) {
+                                textModelList.remove(i);
+                                _root.removeView(view);
+                                return;
+                            }
+                        }
+                    }
+                });
+
+        alertDialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+
     }
 
 }

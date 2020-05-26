@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -327,4 +328,6 @@ public class NewCropperActivity extends AppCompatActivity implements View.OnClic
                 imagePickerDialog.onActivityResult(requestCode, resultCode, data);
         }
     }
+
+
 }
